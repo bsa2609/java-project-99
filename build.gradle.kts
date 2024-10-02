@@ -30,7 +30,9 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	implementation("org.springframework.boot:spring-boot-starter-validation")
 
-	runtimeOnly("com.h2database:h2")
+	runtimeOnly("com.h2database:h2:2.2.224")
+	implementation("com.zaxxer:HikariCP:5.1.0")
+	implementation("org.postgresql:postgresql:42.7.3")
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
