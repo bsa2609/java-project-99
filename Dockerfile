@@ -2,7 +2,7 @@ FROM eclipse-temurin:21-jdk
 
 RUN apt-get update && apt-get install -yq make unzip
 
-WORKDIR /app
+WORKDIR /backend
 
 COPY gradle gradle
 COPY build.gradle.kts .
