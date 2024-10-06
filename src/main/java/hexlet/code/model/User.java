@@ -30,10 +30,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @NotBlank(message = "First name may not be blank")
     private String firstName;
-
-    @NotBlank(message = "Last name may not be blank")
     private String lastName;
 
     @NotBlank(message = "Email may not be blank")
@@ -42,7 +39,7 @@ public class User {
     private String email;
 
     @NotBlank(message = "Password name may not be blank")
-    @Size(min = 7, max = 50, message = "Password must be between 7 and 50 characters long")
+    @Size(min = 3, message = "Password must be longer than 3 characters")
     private String password;
 
     @CreatedDate

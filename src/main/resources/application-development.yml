@@ -5,3 +5,6 @@ spring:
     password: sa
   h2:
     console.enabled: true
+  output:
+    ansi:
+      enabled: always
