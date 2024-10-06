@@ -20,7 +20,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
@@ -30,7 +29,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -52,7 +50,7 @@ public class UsersControllerTest {
     private Faker faker;
 
     @Autowired
-    PasswordEncoder passwordEncoder;
+    private PasswordEncoder passwordEncoder;
 
     private User testUser;
     private String token;
@@ -95,7 +93,6 @@ public class UsersControllerTest {
     }
 
     @Test
-    //@WithMockUser(username="hexlet@example.com")
     @DisplayName("Test GET request to /api/users")
     public void testGetToApiUsers() throws Exception {
         var result = mockMvc.perform(get("/api/users")
@@ -109,7 +106,6 @@ public class UsersControllerTest {
     }
 
     @Test
-    //@WithMockUser(username="hexlet@example.com")
     @DisplayName("Test GET request to /api/users/{id}")
     public void testGetToApiUsersId() throws Exception {
         var result = mockMvc.perform(get("/api/users/" + testUser.getId())
@@ -160,7 +156,6 @@ public class UsersControllerTest {
     }
 
     @Test
-    @WithMockUser(username="hexlet@example.com")
     @DisplayName("Test POST request to /api/users (with not valid email)")
     public void testPostToApiUsersWithNotValidEmail() throws Exception {
         var dto = new UserCreateDTO();
@@ -179,7 +174,6 @@ public class UsersControllerTest {
     }
 
     @Test
-    @WithMockUser(username="hexlet@example.com")
     @DisplayName("Test POST request to /api/users (with not valid password)")
     public void testPostToApiUsersWithNotValidPassword() throws Exception {
         var dto = new UserCreateDTO();
@@ -198,7 +192,6 @@ public class UsersControllerTest {
     }
 
     @Test
-    @WithMockUser(username="hexlet@example.com")
     @DisplayName("Test PUT request to /api/users/{id} (updating all fields)")
     public void testPutToApiUsersIdUpdatingAllFields() throws Exception {
         var dto = new UserUpdateDTO();
@@ -230,7 +223,6 @@ public class UsersControllerTest {
     }
 
     @Test
-    @WithMockUser(username="hexlet@example.com")
     @DisplayName("Test PUT request to /api/users/{id} (updating some fields)")
     public void testPutToApiUsersIdUpdatingSomeFields() throws Exception {
         var dto = new UserUpdateDTO();
@@ -260,7 +252,6 @@ public class UsersControllerTest {
     }
 
     @Test
-    @WithMockUser(username="hexlet@example.com")
     @DisplayName("Test DELETE request to /api/users/{id}")
     public void testDeleteToApiUsersId() throws Exception {
         long testUserId = testUser.getId();
