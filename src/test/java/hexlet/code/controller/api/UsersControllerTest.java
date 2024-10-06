@@ -22,6 +22,8 @@ import org.springframework.http.MediaType;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.format.DateTimeFormatter;
+
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -113,13 +115,16 @@ public class UsersControllerTest {
                 .andExpect(status().isOk())
                 .andReturn();
 
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String createdAt = testUser.getCreatedAt().format(formatter);
+
         String body = result.getResponse().getContentAsString();
         assertThatJson(body).and(
                 v -> v.node("id").isEqualTo(testUser.getId()),
                 v -> v.node("email").isEqualTo(testUser.getEmail()),
                 v -> v.node("firstName").isEqualTo(testUser.getFirstName()),
                 v -> v.node("lastName").isEqualTo(testUser.getLastName()),
-                v -> v.node("createdAt").isEqualTo(testUser.getCreatedAt())
+                v -> v.node("createdAt").isEqualTo(createdAt)
         );
     }
 
