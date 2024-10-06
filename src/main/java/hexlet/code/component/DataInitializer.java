@@ -21,10 +21,12 @@ public class DataInitializer implements ApplicationRunner {
         String email = "hexlet@example.com";
         String password = "qwerty";
 
-        UserCreateDTO userCreateDTO = new UserCreateDTO();
-        userCreateDTO.setEmail(email);
-        userCreateDTO.setPassword(password);
+        if (!userService.isUserEmailExists(email)) {
+            UserCreateDTO userCreateDTO = new UserCreateDTO();
+            userCreateDTO.setEmail(email);
+            userCreateDTO.setPassword(password);
 
-        userService.create(userCreateDTO);
+            userService.create(userCreateDTO);
+        }
     }
 }

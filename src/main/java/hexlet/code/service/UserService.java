@@ -38,7 +38,7 @@ public class UserService {
 
     public UserDTO create(UserCreateDTO data) {
         String email = data.getEmail();
-        if (userRepository.existsByEmail(email)) {
+        if (isUserEmailExists(email)) {
             throw new EntityNotUniqueException(
                     String.format("User with email %s already exists", email)
             );
@@ -68,5 +68,9 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         String.format("User with id %s not found", id)
                 ));
+    }
+
+    public boolean isUserEmailExists(String email) {
+        return userRepository.existsByEmail(email);
     }
 }
