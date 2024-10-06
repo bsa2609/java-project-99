@@ -38,6 +38,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/").permitAll()
+                        .requestMatchers("/index.html").permitAll()
+                        .requestMatchers("assets/index-6b0de6db.js").permitAll()
                         .requestMatchers("/welcome").permitAll()
                         .requestMatchers("/api/login").permitAll()
                         .anyRequest().authenticated())

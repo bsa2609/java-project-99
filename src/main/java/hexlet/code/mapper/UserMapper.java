@@ -5,6 +5,7 @@ import hexlet.code.dto.UserDTO;
 import hexlet.code.dto.UserUpdateDTO;
 import hexlet.code.model.User;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
@@ -25,6 +26,7 @@ public abstract class UserMapper {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Mapping(target = "createdAt", dateFormat = "yyyy-MM-dd")
     public abstract UserDTO map(User model);
 
     public abstract User map(UserCreateDTO dto);
