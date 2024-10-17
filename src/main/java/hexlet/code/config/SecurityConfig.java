@@ -42,6 +42,8 @@ public class SecurityConfig {
                         .requestMatchers("assets/index-6b0de6db.js").permitAll()
                         .requestMatchers("/welcome").permitAll()
                         .requestMatchers("/api/login").permitAll()
+                        .requestMatchers("/api/task_statuses").permitAll()
+                        .requestMatchers("/api/task_statuses/{id}").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2ResourceServer((rs) -> rs.jwt((jwt) -> jwt.decoder(jwtDecoder)))

@@ -18,6 +18,6 @@ public class UserCreateDTO {
     private String email;
 
     @NotBlank(message = "Password name may not be blank")
-    @Size(min = 3, message = "Password must be longer than 3 characters")
+    @Size(min = 3, message = "The password must be at least 3 characters long")
     private String password;
 }
