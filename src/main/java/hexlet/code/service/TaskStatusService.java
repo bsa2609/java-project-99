@@ -84,4 +84,11 @@ public class TaskStatusService {
     public boolean isNameExists(String name) {
         return taskStatusRepository.existsByName(name);
     }
+
+    public TaskStatus findBySlug(String slug) {
+        return taskStatusRepository.findBySlug(slug)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        String.format("Task status with slug %s not found", slug)
+                ));
+    }
 }
