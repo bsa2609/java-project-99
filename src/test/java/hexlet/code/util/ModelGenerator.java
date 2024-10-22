@@ -1,7 +1,9 @@
 package hexlet.code.util;
 
+import hexlet.code.model.Label;
 import hexlet.code.model.Task;
 import hexlet.code.model.TaskStatus;
+import hexlet.code.service.LabelService;
 import hexlet.code.service.TaskStatusService;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
@@ -21,6 +23,7 @@ public class ModelGenerator {
     private final int maxTaskStatusIndex = 1000;
 
     private Model<Task> taskModel;
+    private Model<Label> labelModel;
 
     @Autowired
     private Faker faker;
@@ -34,6 +37,12 @@ public class ModelGenerator {
     @Autowired
     private TaskStatusUtil taskStatusUtil;
 
+    @Autowired
+    private LabelUtil labelUtil;
+
+    @Autowired
+    private LabelService labelService;
+
     @PostConstruct
     private void init() {
         taskModel = Instancio.of(Task.class)
@@ -44,6 +53,14 @@ public class ModelGenerator {
                 .supply(Select.field(Task::getIndex), () -> getRandomInt(minTaskStatusIndex, maxTaskStatusIndex))
                 .supply(Select.field(Task::getTaskStatus), () -> getRandomDefaultTaskStatus())
                 .supply(Select.field(Task::getAssignee), () -> userUtils.getAdminUser())
+                .supply(Select.field(Task::getLabels), () -> getRandomDefaultLabel())
+                .toModel();
+
+        labelModel = Instancio.of(Label.class)
+                .ignore(Select.field(Label::getId))
+                .ignore(Select.field(Label::getCreatedAt))
+                .ignore(Select.field(Label::getTasks))
+                .supply(Select.field(Label::getName), () -> faker.gameOfThrones().city())
                 .toModel();
 
     }
@@ -59,5 +76,14 @@ public class ModelGenerator {
         String randomSlug = defaultTaskStatuses.get(randomIndex)[0];
 
         return taskStatusService.findBySlug(randomSlug);
+    }
+
+    private List<Label> getRandomDefaultLabel() {
+        List<String> defaultLabels = labelUtil.getDefaultLabels();
+
+        int randomIndex = getRandomInt(0, defaultLabels.size() - 1);
+        String randomName = defaultLabels.get(randomIndex);
+
+        return List.of(labelService.findByName(randomName));
     }
 }

@@ -1,6 +1,6 @@
 package hexlet.code.util;
 
-import hexlet.code.dto.TaskStatusCreateDTO;
+import hexlet.code.dto.taskStatus.TaskStatusCreateDTO;
 import hexlet.code.service.TaskStatusService;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;

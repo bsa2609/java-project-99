@@ -1,15 +1,17 @@
 package hexlet.code.controller.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import hexlet.code.dto.TaskCreateDTO;
-import hexlet.code.dto.TaskDTO;
-import hexlet.code.dto.TaskUpdateDTO;
+import hexlet.code.dto.task.TaskCreateDTO;
+import hexlet.code.dto.task.TaskDTO;
+import hexlet.code.dto.task.TaskUpdateDTO;
 import hexlet.code.mapper.TaskMapper;
 import hexlet.code.model.Task;
+import hexlet.code.repository.LabelRepository;
 import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.TaskStatusRepository;
 import hexlet.code.service.TaskStatusService;
 import hexlet.code.service.UserService;
+import hexlet.code.util.LabelUtil;
 import hexlet.code.util.ModelGenerator;
 import hexlet.code.util.TaskStatusUtil;
 import hexlet.code.util.UserUtils;
@@ -34,6 +36,7 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -44,7 +47,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -82,6 +84,12 @@ public class TasksControllerTest {
     @Autowired
     private ModelGenerator modelGenerator;
 
+    @Autowired
+    private LabelUtil labelUtil;
+
+    @Autowired
+    private LabelRepository labelRepository;
+
     private Task testTask;
     private JwtRequestPostProcessor token;
 
@@ -89,6 +97,7 @@ public class TasksControllerTest {
     public void setUp() {
         userUtils.createAdminUser();
         taskStatusUtil.createDefaultTaskStatuses();
+        labelUtil.createDefaultLabels();
 
         mockMvc = MockMvcBuilders.webAppContextSetup(wac)
                 .defaultResponseCharacterEncoding(StandardCharsets.UTF_8)
@@ -105,6 +114,7 @@ public class TasksControllerTest {
     public void clearTables() {
         taskRepository.deleteAll();
         taskStatusRepository.deleteAll();
+        labelRepository.deleteAll();
     }
 
     @Test
@@ -146,7 +156,10 @@ public class TasksControllerTest {
                 v -> v.node("index").isEqualTo(testTask.getIndex()),
                 v -> v.node("status").isEqualTo(testTask.getTaskStatus().getSlug()),
                 v -> v.node("assignee_id").isEqualTo(testTask.getAssignee().getId()),
-                v -> v.node("createdAt").isEqualTo(createdAt)
+                v -> v.node("status").isEqualTo(testTask.getTaskStatus().getSlug()),
+                v -> v.node("createdAt").isEqualTo(createdAt),
+                v -> v.node("taskLabelIds").isArray(),
+                v -> v.node("taskLabelIds").isEqualTo(new long[]{testTask.getLabels().getFirst().getId()})
         );
     }
 
@@ -159,6 +172,7 @@ public class TasksControllerTest {
         dto.setContent(JsonNullable.of(testTask.getDescription()));
         dto.setIndex(JsonNullable.of(testTask.getIndex()));
         dto.setAssigneeId(JsonNullable.of(testTask.getAssignee().getId()));
+        dto.setTaskLabelIds(JsonNullable.of(List.of(testTask.getLabels().getFirst().getId())));
 
         var request = post("/api/tasks")
                 .with(token)
@@ -175,18 +189,21 @@ public class TasksControllerTest {
                 v -> v.node("content").isEqualTo(testTask.getDescription()),
                 v -> v.node("index").isEqualTo(testTask.getIndex()),
                 v -> v.node("status").isEqualTo(testTask.getTaskStatus().getSlug()),
-                v -> v.node("assignee_id").isEqualTo(testTask.getAssignee().getId())
+                v -> v.node("assignee_id").isEqualTo(testTask.getAssignee().getId()),
+                v -> v.node("taskLabelIds").isArray(),
+                v -> v.node("taskLabelIds").isEqualTo(new long[]{testTask.getLabels().getFirst().getId()})
         );
 
         TaskDTO taskDTO = objectMapper.readValue(body, TaskDTO.class);
 
-        Task task = taskRepository.findById(taskDTO.getId()).get();
+        Task task = taskRepository.findByIdFetchLabels(taskDTO.getId()).orElse(null);
         assertNotNull(task);
         assertThat(task.getName()).isEqualTo(testTask.getName());
         assertThat(task.getDescription()).isEqualTo(testTask.getDescription());
         assertThat(task.getIndex()).isEqualTo(testTask.getIndex());
         assertThat(task.getTaskStatus()).isEqualTo(testTask.getTaskStatus());
         assertThat(task.getAssignee()).isEqualTo(testTask.getAssignee());
+        assertThat(task.getLabels().getFirst()).isEqualTo(testTask.getLabels().getFirst());
     }
 
     @Test
@@ -280,6 +297,7 @@ public class TasksControllerTest {
         dto.setIndex(JsonNullable.of(testTask2.getIndex()));
         dto.setStatus(JsonNullable.of(testTask2.getTaskStatus().getSlug()));
         dto.setAssigneeId(JsonNullable.of(testTask2.getAssignee().getId()));
+        dto.setTaskLabelIds(JsonNullable.of(List.of(testTask2.getLabels().getFirst().getId())));
 
         var request = put("/api/tasks/" + testTask.getId())
                 .with(token)
@@ -296,16 +314,19 @@ public class TasksControllerTest {
                 v -> v.node("content").isEqualTo(testTask2.getDescription()),
                 v -> v.node("index").isEqualTo(testTask2.getIndex()),
                 v -> v.node("status").isEqualTo(testTask2.getTaskStatus().getSlug()),
-                v -> v.node("assignee_id").isEqualTo(testTask2.getAssignee().getId())
+                v -> v.node("assignee_id").isEqualTo(testTask2.getAssignee().getId()),
+                v -> v.node("taskLabelIds").isArray(),
+                v -> v.node("taskLabelIds").isEqualTo(new long[]{testTask2.getLabels().getFirst().getId()})
         );
 
-        Task task = taskRepository.findById(testTask.getId()).get();
+        Task task = taskRepository.findByIdFetchLabels(testTask.getId()).orElse(null);
         assertNotNull(task);
         assertThat(task.getName()).isEqualTo(testTask2.getName());
         assertThat(task.getDescription()).isEqualTo(testTask2.getDescription());
         assertThat(task.getIndex()).isEqualTo(testTask2.getIndex());
         assertThat(task.getTaskStatus()).isEqualTo(testTask2.getTaskStatus());
         assertThat(task.getAssignee()).isEqualTo(testTask2.getAssignee());
+        assertThat(task.getLabels().getFirst()).isEqualTo(testTask2.getLabels().getFirst());
     }
 
     @Test
@@ -322,6 +343,7 @@ public class TasksControllerTest {
         dto.setIndex(JsonNullable.of(testTask2.getIndex()));
         dto.setStatus(JsonNullable.of(testTask2.getTaskStatus().getSlug()));
         dto.setAssigneeId(JsonNullable.of(testTask2.getAssignee().getId()));
+        dto.setTaskLabelIds(JsonNullable.of(List.of(testTask2.getLabels().getFirst().getId())));
 
         var request = put("/api/tasks/" + testTask.getId())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -330,13 +352,14 @@ public class TasksControllerTest {
         mockMvc.perform(request)
                 .andExpect(status().isUnauthorized());
 
-        Task task = taskRepository.findById(testTask.getId()).orElse(null);
+        Task task = taskRepository.findByIdFetchLabels(testTask.getId()).orElse(null);
         assertNotNull(task);
         assertThat(task.getName()).isEqualTo(testTask.getName());
         assertThat(task.getDescription()).isEqualTo(testTask.getDescription());
         assertThat(task.getIndex()).isEqualTo(testTask.getIndex());
         assertThat(task.getTaskStatus()).isEqualTo(testTask.getTaskStatus());
         assertThat(task.getAssignee()).isEqualTo(testTask.getAssignee());
+        assertThat(task.getLabels().getFirst()).isEqualTo(testTask.getLabels().getFirst());
     }
 
     @Test
@@ -369,13 +392,14 @@ public class TasksControllerTest {
                 v -> v.node("assignee_id").isEqualTo(testTask.getAssignee().getId())
         );
 
-        Task task = taskRepository.findById(testTask.getId()).orElse(null);
+        Task task = taskRepository.findByIdFetchLabels(testTask.getId()).orElse(null);
         assertNotNull(task);
         assertThat(task.getName()).isEqualTo(testTask2.getName());
         assertThat(task.getDescription()).isEqualTo(testTask2.getDescription());
         assertThat(task.getIndex()).isEqualTo(testTask.getIndex());
         assertThat(task.getTaskStatus()).isEqualTo(testTask.getTaskStatus());
         assertThat(task.getAssignee()).isEqualTo(testTask.getAssignee());
+        assertThat(task.getLabels().getFirst()).isEqualTo(testTask.getLabels().getFirst());
     }
 
     @Test

@@ -7,3 +7,8 @@ spring:
       ddl-auto: update
   profiles:
     default: development
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /api-docs

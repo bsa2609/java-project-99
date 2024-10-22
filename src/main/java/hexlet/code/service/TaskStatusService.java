@@ -1,8 +1,8 @@
 package hexlet.code.service;
 
-import hexlet.code.dto.TaskStatusCreateDTO;
-import hexlet.code.dto.TaskStatusDTO;
-import hexlet.code.dto.TaskStatusUpdateDTO;
+import hexlet.code.dto.taskStatus.TaskStatusCreateDTO;
+import hexlet.code.dto.taskStatus.TaskStatusDTO;
+import hexlet.code.dto.taskStatus.TaskStatusUpdateDTO;
 import hexlet.code.exception.EntityNotUniqueException;
 import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.mapper.TaskStatusMapper;
@@ -59,6 +59,24 @@ public class TaskStatusService {
 
     public TaskStatusDTO update(long id, TaskStatusUpdateDTO data) {
         TaskStatus taskStatus = findById(id);
+
+        if (data.getSlug() != null && data.getSlug().isPresent()) {
+            String slug = data.getSlug().get();
+            if (isSlugExists(slug)) {
+                throw new EntityNotUniqueException(
+                        String.format("Task status with slug %s already exists", slug)
+                );
+            }
+        }
+
+        if (data.getName() != null && data.getName().isPresent()) {
+            String name = data.getName().get();
+            if (isNameExists(name)) {
+                throw new EntityNotUniqueException(
+                        String.format("Task status with name %s already exists", name)
+                );
+            }
+        }
 
         taskStatusMapper.update(data, taskStatus);
         taskStatusRepository.save(taskStatus);
