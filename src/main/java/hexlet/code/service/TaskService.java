@@ -24,8 +24,8 @@ public class TaskService {
         this.taskRepository = taskRepository;
     }
 
-    public List<TaskDTO> getAll() {
-        return taskRepository.findAll().stream()
+    public List<TaskDTO> getAll(String titleCont, long assigneeId, String status, long labelId) {
+        return taskRepository.findAllUsingFilters(titleCont, assigneeId, status, labelId).stream()
                 .map(taskMapper::map)
                 .toList();
     }

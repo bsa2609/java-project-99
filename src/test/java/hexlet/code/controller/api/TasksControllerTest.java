@@ -1,14 +1,18 @@
 package hexlet.code.controller.api;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hexlet.code.dto.task.TaskCreateDTO;
 import hexlet.code.dto.task.TaskDTO;
 import hexlet.code.dto.task.TaskUpdateDTO;
 import hexlet.code.mapper.TaskMapper;
+import hexlet.code.model.Label;
 import hexlet.code.model.Task;
+import hexlet.code.model.TaskStatus;
 import hexlet.code.repository.LabelRepository;
 import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.TaskStatusRepository;
+import hexlet.code.service.LabelService;
 import hexlet.code.service.TaskStatusService;
 import hexlet.code.service.UserService;
 import hexlet.code.util.LabelUtil;
@@ -90,6 +94,9 @@ public class TasksControllerTest {
     @Autowired
     private LabelRepository labelRepository;
 
+    @Autowired
+    private LabelService labelService;
+
     private Task testTask;
     private JwtRequestPostProcessor token;
 
@@ -133,6 +140,103 @@ public class TasksControllerTest {
         assertThat(body).contains(testTask.getDescription());
         assertThat(body).contains(testTask.getTaskStatus().getSlug());
         assertThat(body).contains(String.valueOf(testTask.getAssignee().getId()));
+    }
+
+    @Test
+    @DisplayName("Test GET request to /api/tasks (using filters)")
+    public void testGetToApiTasksUsingFilters() throws Exception {
+        Task testTask2 = Instancio.of(modelGenerator.getTaskModel())
+                .create();
+
+        Task testTask3 = Instancio.of(modelGenerator.getTaskModel())
+                .create();
+
+        Task testTask4 = Instancio.of(modelGenerator.getTaskModel())
+                .create();
+
+        Task testTask5 = Instancio.of(modelGenerator.getTaskModel())
+                .create();
+
+        Label labelBug = labelService.findByName("bug");
+        Label labelFeature = labelService.findByName("feature");
+
+        TaskStatus taskStatusDraft = taskStatusService.findBySlug("draft");
+        TaskStatus taskStatusPublished = taskStatusService.findBySlug("published");
+
+        testTask.setName("test 1");
+        testTask.setTaskStatus(taskStatusDraft);
+        testTask.setLabels(List.of(labelBug));
+
+        testTask2.setName("test 2");
+        testTask2.setTaskStatus(taskStatusDraft);
+        testTask2.setLabels(List.of(labelBug));
+
+        testTask3.setName("test 3");
+        testTask3.setTaskStatus(taskStatusDraft);
+        testTask3.setLabels(List.of(labelBug, labelFeature));
+
+        testTask4.setName("task 1");
+        testTask4.setTaskStatus(taskStatusPublished);
+        testTask4.setLabels(List.of(labelBug, labelFeature));
+
+        testTask5.setName("task 2");
+        testTask5.setTaskStatus(taskStatusPublished);
+        testTask5.setLabels(List.of(labelFeature));
+
+        taskRepository.save(testTask);
+        taskRepository.save(testTask2);
+        taskRepository.save(testTask3);
+        taskRepository.save(testTask4);
+        taskRepository.save(testTask5);
+
+        final int tasksCount = 3;
+        final int tasks2Count = 2;
+        final int tasks3Count = 1;
+
+        var result = mockMvc.perform(get("/api/tasks?status=draft&labelId=" + labelBug.getId())
+                        .with(token))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String body = result.getResponse().getContentAsString();
+        assertThatJson(body).isArray();
+
+        List<Task> tasks = objectMapper.readValue(body, new TypeReference<List<Task>>() { });
+        assertThat(tasks.size()).isEqualTo(tasksCount);
+
+        assertThat(body).contains(testTask.getName());
+        assertThat(body).contains(testTask2.getName());
+        assertThat(body).contains(testTask3.getName());
+
+        var result2 = mockMvc.perform(get("/api/tasks?titleCont=task&status=published&labelId="
+                        + labelFeature.getId())
+                        .with(token))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String body2 = result2.getResponse().getContentAsString();
+        assertThatJson(body2).isArray();
+
+        List<Task> tasks2 = objectMapper.readValue(body2, new TypeReference<List<Task>>() { });
+        assertThat(tasks2.size()).isEqualTo(tasks2Count);
+
+        assertThat(body2).contains(testTask4.getName());
+        assertThat(body2).contains(testTask5.getName());
+
+        var result3 = mockMvc.perform(get("/api/tasks?titleCont=test&assigneeId="
+                        + userUtils.getAdminUser().getId() + "&status=draft&labelId="
+                        + labelFeature.getId())
+                        .with(token))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        String body3 = result3.getResponse().getContentAsString();
+        assertThatJson(body3).isArray();
+
+        List<Task> tasks3 = objectMapper.readValue(body3, new TypeReference<List<Task>>() { });
+        assertThat(tasks3.size()).isEqualTo(tasks3Count);
+
+        assertThat(body3).contains(testTask3.getName());
     }
 
     @Test
