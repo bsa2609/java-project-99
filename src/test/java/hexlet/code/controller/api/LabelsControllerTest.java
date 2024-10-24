@@ -9,6 +9,7 @@ import hexlet.code.repository.LabelRepository;
 import hexlet.code.util.LabelUtils;
 import hexlet.code.util.ModelGenerator;
 import hexlet.code.util.UserUtils;
+import jakarta.servlet.ServletException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -30,6 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import org.springframework.http.MediaType;
@@ -182,6 +184,24 @@ public class LabelsControllerTest {
 
         mockMvc.perform(request)
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("Test POST request to /api/labels (with duplicate name)")
+    public void testPostToApiLabelsWithDuplicateName() throws Exception {
+        labelRepository.save(testLabel);
+
+        var dto = new LabelCreateDTO();
+        dto.setName(testLabel.getName());
+
+        var request = post("/api/labels")
+                .with(token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto));
+
+        assertThrows(ServletException.class,
+                () -> mockMvc.perform(request).andReturn()
+        );
     }
 
     @Test

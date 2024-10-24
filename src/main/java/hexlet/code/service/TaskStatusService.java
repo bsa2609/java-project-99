@@ -3,7 +3,9 @@ package hexlet.code.service;
 import hexlet.code.dto.taskStatus.TaskStatusCreateDTO;
 import hexlet.code.dto.taskStatus.TaskStatusDTO;
 import hexlet.code.dto.taskStatus.TaskStatusUpdateDTO;
-import hexlet.code.exception.EntityNotUniqueException;
+
+//import hexlet.code.exception.EntityNotUniqueException;
+
 import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.mapper.TaskStatusMapper;
 import hexlet.code.model.TaskStatus;
@@ -37,6 +39,7 @@ public class TaskStatusService {
     }
 
     public TaskStatusDTO create(TaskStatusCreateDTO data) {
+        /*
         String slug = data.getSlug();
         if (isSlugExists(slug)) {
             throw new EntityNotUniqueException(
@@ -51,6 +54,8 @@ public class TaskStatusService {
             );
         }
 
+         */
+
         TaskStatus taskStatus = taskStatusMapper.map(data);
         taskStatusRepository.save(taskStatus);
 
@@ -60,6 +65,7 @@ public class TaskStatusService {
     public TaskStatusDTO update(long id, TaskStatusUpdateDTO data) {
         TaskStatus taskStatus = findById(id);
 
+        /*
         if (data.getSlug() != null && data.getSlug().isPresent()) {
             String slug = data.getSlug().get();
             if (isSlugExists(slug)) {
@@ -77,6 +83,8 @@ public class TaskStatusService {
                 );
             }
         }
+
+         */
 
         taskStatusMapper.update(data, taskStatus);
         taskStatusRepository.save(taskStatus);

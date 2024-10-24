@@ -3,7 +3,9 @@ package hexlet.code.service;
 import hexlet.code.dto.label.LabelCreateDTO;
 import hexlet.code.dto.label.LabelDTO;
 import hexlet.code.dto.label.LabelUpdateDTO;
-import hexlet.code.exception.EntityNotUniqueException;
+
+// import hexlet.code.exception.EntityNotUniqueException;
+
 import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.mapper.LabelMapper;
 import hexlet.code.model.Label;
@@ -37,12 +39,15 @@ public class LabelService {
     }
 
     public LabelDTO create(LabelCreateDTO data) {
+        /*
         String name = data.getName();
         if (isNameExists(name)) {
             throw new EntityNotUniqueException(
                     String.format("Label with name %s already exists", name)
             );
         }
+
+         */
 
         Label label = labelMapper.map(data);
         labelRepository.save(label);
@@ -51,12 +56,15 @@ public class LabelService {
     }
 
     public LabelDTO update(long id, LabelUpdateDTO data) {
+        /*
         String name = data.getName();
         if (isNameExists(name)) {
             throw new EntityNotUniqueException(
                     String.format("Label with name %s already exists", name)
             );
         }
+
+         */
 
         Label label = findById(id);
 

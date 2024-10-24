@@ -3,7 +3,9 @@ package hexlet.code.service;
 import hexlet.code.dto.task.TaskCreateDTO;
 import hexlet.code.dto.task.TaskDTO;
 import hexlet.code.dto.task.TaskUpdateDTO;
-import hexlet.code.exception.ReferenceNotFoundException;
+
+//import hexlet.code.exception.ReferenceNotFoundException;
+
 import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.mapper.TaskMapper;
 import hexlet.code.model.Task;
@@ -39,6 +41,7 @@ public class TaskService {
     public TaskDTO create(TaskCreateDTO data) {
         Task task = taskMapper.map(data);
 
+        /*
         if (task.getTaskStatus() == null) {
             throw new ReferenceNotFoundException(
                     String.format("Task status with slug %s not found. Task cannot be created.", data.getStatus())
@@ -54,6 +57,8 @@ public class TaskService {
             );
         }
 
+         */
+
         taskRepository.save(task);
 
         return taskMapper.map(task);
@@ -64,6 +69,7 @@ public class TaskService {
 
         taskMapper.update(data, task);
 
+        /*
         if (data.getStatus() != null
                 && data.getStatus().isPresent()
                 && task.getTaskStatus() == null) {
@@ -80,6 +86,8 @@ public class TaskService {
                     String.format("User with id %s not found. Task cannot be updated.", data.getAssigneeId().get())
             );
         }
+
+         */
 
         taskRepository.save(task);
 

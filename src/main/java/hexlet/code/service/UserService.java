@@ -3,7 +3,9 @@ package hexlet.code.service;
 import hexlet.code.dto.user.UserCreateDTO;
 import hexlet.code.dto.user.UserDTO;
 import hexlet.code.dto.user.UserUpdateDTO;
-import hexlet.code.exception.EntityNotUniqueException;
+
+// import hexlet.code.exception.EntityNotUniqueException;
+
 import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.mapper.UserMapper;
 import hexlet.code.model.User;
@@ -37,12 +39,15 @@ public class UserService {
     }
 
     public UserDTO create(UserCreateDTO data) {
+        /*
         String email = data.getEmail();
         if (isEmailExists(email)) {
             throw new EntityNotUniqueException(
                     String.format("User with email %s already exists", email)
             );
         }
+
+         */
 
         User user = userMapper.map(data);
         userRepository.save(user);

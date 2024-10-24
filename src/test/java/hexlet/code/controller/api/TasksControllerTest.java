@@ -19,6 +19,7 @@ import hexlet.code.util.LabelUtils;
 import hexlet.code.util.ModelGenerator;
 import hexlet.code.util.TaskStatusUtils;
 import hexlet.code.util.UserUtils;
+import jakarta.servlet.ServletException;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +30,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
@@ -344,8 +347,9 @@ public class TasksControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto));
 
-        mockMvc.perform(request)
-                .andExpect(status().isBadRequest());
+        assertThrows(ServletException.class,
+                () -> mockMvc.perform(request).andReturn()
+        );
     }
 
     @Test
@@ -357,14 +361,36 @@ public class TasksControllerTest {
         dto.setContent(JsonNullable.of(testTask.getDescription()));
         dto.setIndex(JsonNullable.of(testTask.getIndex()));
         dto.setAssigneeId(JsonNullable.of(999L));
+        dto.setTaskLabelIds(JsonNullable.of(List.of(testTask.getLabels().getFirst().getId())));
 
         var request = post("/api/tasks")
                 .with(token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(dto));
 
-        mockMvc.perform(request)
-                .andExpect(status().isBadRequest());
+        var result = mockMvc.perform(request).andReturn();
+
+        String body = result.getResponse().getContentAsString();
+        assertThatJson(body).and(
+                v -> v.node("title").isEqualTo(testTask.getName()),
+                v -> v.node("content").isEqualTo(testTask.getDescription()),
+                v -> v.node("index").isEqualTo(testTask.getIndex()),
+                v -> v.node("status").isEqualTo(testTask.getTaskStatus().getSlug()),
+                v -> v.node("assignee_id").isEqualTo(0),
+                v -> v.node("taskLabelIds").isArray(),
+                v -> v.node("taskLabelIds").isEqualTo(new long[]{testTask.getLabels().getFirst().getId()})
+        );
+
+        TaskDTO taskDTO = objectMapper.readValue(body, TaskDTO.class);
+
+        Task task = taskRepository.findByIdFetchLabels(taskDTO.getId()).orElse(null);
+        assertNotNull(task);
+        assertThat(task.getName()).isEqualTo(testTask.getName());
+        assertThat(task.getDescription()).isEqualTo(testTask.getDescription());
+        assertThat(task.getIndex()).isEqualTo(testTask.getIndex());
+        assertThat(task.getTaskStatus()).isEqualTo(testTask.getTaskStatus());
+        assertNull(task.getAssignee());
+        assertThat(task.getLabels().getFirst()).isEqualTo(testTask.getLabels().getFirst());
     }
 
     @Test

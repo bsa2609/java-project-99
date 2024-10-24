@@ -6,6 +6,7 @@ import hexlet.code.dto.taskStatus.TaskStatusUpdateDTO;
 import hexlet.code.mapper.TaskStatusMapper;
 import hexlet.code.model.TaskStatus;
 import hexlet.code.repository.TaskStatusRepository;
+import jakarta.servlet.ServletException;
 import net.datafaker.Faker;
 import org.instancio.Instancio;
 import org.instancio.Select;
@@ -29,6 +30,7 @@ import java.time.format.DateTimeFormatter;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -179,6 +181,44 @@ public class TaskStatusesControllerTest {
 
         mockMvc.perform(request)
                 .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @DisplayName("Test POST request to /api/task_statuses (with duplicate slug)")
+    public void testPostToApiTaskStatusesWithDuplicateSlug() throws Exception {
+        taskStatusRepository.save(testTaskStatus);
+
+        var dto = new TaskStatusCreateDTO();
+        dto.setSlug(testTaskStatus.getSlug());
+        dto.setName("new test name");
+
+        var request = post("/api/task_statuses")
+                .with(token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto));
+
+        assertThrows(ServletException.class,
+                () -> mockMvc.perform(request).andReturn()
+        );
+    }
+
+    @Test
+    @DisplayName("Test POST request to /api/task_statuses (with duplicate name)")
+    public void testPostToApiTaskStatusesWithDuplicateName() throws Exception {
+        taskStatusRepository.save(testTaskStatus);
+
+        var dto = new TaskStatusCreateDTO();
+        dto.setSlug("new_test_slug");
+        dto.setName(testTaskStatus.getName());
+
+        var request = post("/api/task_statuses")
+                .with(token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto));
+
+        assertThrows(ServletException.class,
+                () -> mockMvc.perform(request).andReturn()
+        );
     }
 
     @Test

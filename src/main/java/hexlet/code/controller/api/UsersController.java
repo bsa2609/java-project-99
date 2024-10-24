@@ -6,7 +6,6 @@ import hexlet.code.dto.user.UserCreateDTO;
 import hexlet.code.dto.user.UserDTO;
 import hexlet.code.dto.user.UserUpdateDTO;
 import hexlet.code.service.UserService;
-import hexlet.code.util.UserUtils;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,12 +25,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/users")
 public class UsersController {
     private final UserService userService;
-    private final UserUtils userUtils;
 
     @Autowired
-    public UsersController(UserService userService, UserUtils userUtils) {
+    public UsersController(UserService userService) {
         this.userService = userService;
-        this.userUtils = userUtils;
     }
 
     @GetMapping("")

@@ -22,7 +22,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
             LEFT JOIN t.assignee a
             LEFT JOIN t.taskStatus s
             WHERE
-                (t.name LIKE %:titleCont% OR :titleCont = "")
+                (t.name ILIKE %:titleCont% OR :titleCont = "")
                 AND (a.id = :assigneeId OR :assigneeId = 0)
                 AND (s.slug = :status OR :status = "")
                 AND (l.id = :labelId OR :labelId = 0)

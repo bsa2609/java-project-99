@@ -6,10 +6,10 @@ import hexlet.code.dto.user.UserUpdateDTO;
 import hexlet.code.mapper.UserMapper;
 import hexlet.code.model.User;
 import hexlet.code.repository.UserRepository;
+import hexlet.code.util.ModelGenerator;
+import jakarta.servlet.ServletException;
 import net.datafaker.Faker;
-import net.datafaker.providers.base.Text;
 import org.instancio.Instancio;
-import org.instancio.Select;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -28,12 +28,10 @@ import org.springframework.web.context.WebApplicationContext;
 import java.nio.charset.StandardCharsets;
 import java.time.format.DateTimeFormatter;
 
-import static net.datafaker.providers.base.Text.DIGITS;
-import static net.datafaker.providers.base.Text.EN_LOWERCASE;
-import static net.datafaker.providers.base.Text.EN_UPPERCASE;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -66,6 +64,9 @@ public class UsersControllerTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private ModelGenerator modelGenerator;
+
     private User testUser;
     private JwtRequestPostProcessor token;
 
@@ -76,23 +77,7 @@ public class UsersControllerTest {
                 .apply(springSecurity())
                 .build();
 
-        String password = faker.text().text(Text.TextSymbolsBuilder.builder()
-                .len(10)
-                .with(EN_LOWERCASE, 1)
-                .with(EN_UPPERCASE, 1)
-                .with(DIGITS, 1)
-                .build()
-        );
-        String hashedPassword = passwordEncoder.encode(password);
-
-        testUser = Instancio.of(User.class)
-                .ignore(Select.field(User::getId))
-                .ignore(Select.field(User::getCreatedAt))
-                .ignore(Select.field(User::getUpdatedAt))
-                .supply(Select.field(User::getEmail), () -> faker.internet().emailAddress())
-                .supply(Select.field(User::getPassword), () -> hashedPassword)
-                .supply(Select.field(User::getFirstName), () -> faker.name().firstName())
-                .supply(Select.field(User::getLastName), () -> faker.name().lastName())
+        testUser = Instancio.of(modelGenerator.getUserModel())
                 .create();
 
         userRepository.save(testUser);
@@ -149,13 +134,7 @@ public class UsersControllerTest {
     @Test
     @DisplayName("Test POST request to /api/users")
     public void testPostToApiUsers() throws Exception {
-        String password = faker.text().text(Text.TextSymbolsBuilder.builder()
-                .len(10)
-                .with(EN_LOWERCASE, 1)
-                .with(EN_UPPERCASE, 1)
-                .with(DIGITS, 1)
-                .build()
-        );
+        String password = modelGenerator.generatePassword();
 
         var dto = new UserCreateDTO();
         dto.setEmail(faker.internet().emailAddress());
@@ -189,13 +168,7 @@ public class UsersControllerTest {
     @Test
     @DisplayName("Test POST request to /api/users (with not valid email)")
     public void testPostToApiUsersWithNotValidEmail() throws Exception {
-        String password = faker.text().text(Text.TextSymbolsBuilder.builder()
-                .len(10)
-                .with(EN_LOWERCASE, 1)
-                .with(EN_UPPERCASE, 1)
-                .with(DIGITS, 1)
-                .build()
-        );
+        String password = modelGenerator.generatePassword();
 
         var dto = new UserCreateDTO();
         dto.setEmail("zzz");
@@ -231,15 +204,30 @@ public class UsersControllerTest {
     }
 
     @Test
+    @DisplayName("Test POST request to /api/users (with duplicate email)")
+    public void testPostToApiUsersWithDuplicateEmail() throws Exception {
+        String password = modelGenerator.generatePassword();
+
+        var dto = new UserCreateDTO();
+        dto.setEmail(testUser.getEmail());
+        dto.setPassword(password);
+        dto.setFirstName(JsonNullable.of(faker.name().firstName()));
+        dto.setLastName(JsonNullable.of(faker.name().lastName()));
+
+        var request = post("/api/users")
+                .with(token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto));
+
+        assertThrows(ServletException.class,
+                () -> mockMvc.perform(request).andReturn()
+        );
+    }
+
+    @Test
     @DisplayName("Test PUT request to /api/users/{id} (updating all fields)")
     public void testPutToApiUsersIdUpdatingAllFields() throws Exception {
-        String password = faker.text().text(Text.TextSymbolsBuilder.builder()
-                .len(10)
-                .with(EN_LOWERCASE, 1)
-                .with(EN_UPPERCASE, 1)
-                .with(DIGITS, 1)
-                .build()
-        );
+        String password = modelGenerator.generatePassword();
 
         var dto = new UserUpdateDTO();
         dto.setEmail(JsonNullable.of(faker.internet().emailAddress()));
@@ -270,15 +258,41 @@ public class UsersControllerTest {
     }
 
     @Test
+    @DisplayName("Test PUT request to /api/users/{id} (updating all fields from other user)")
+    public void testPutToApiUsersIdUpdatingAllFieldsFromOtherUser() throws Exception {
+        User testUser2 = Instancio.of(modelGenerator.getUserModel())
+                .create();
+
+        userRepository.save(testUser2);
+
+        JwtRequestPostProcessor token2 = jwt().jwt(builder -> builder.subject(testUser2.getEmail()));
+
+        String password = modelGenerator.generatePassword();
+
+        var dto = new UserUpdateDTO();
+        dto.setEmail(JsonNullable.of(faker.internet().emailAddress()));
+        dto.setPassword(JsonNullable.of(password));
+        dto.setFirstName(JsonNullable.of(faker.name().firstName()));
+        dto.setLastName(JsonNullable.of(faker.name().lastName()));
+
+        var request = put("/api/users/" + testUser.getId())
+                .with(token2)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(dto));
+
+        var result = mockMvc.perform(request)
+                .andExpect(status().isForbidden());
+
+        var user = userRepository.findByEmail(testUser.getEmail()).get();
+        assertThat(user.getEmail()).isEqualTo(testUser.getEmail());
+        assertThat(user.getFirstName()).isEqualTo(testUser.getFirstName());
+        assertThat(user.getLastName()).isEqualTo(testUser.getLastName());
+    }
+
+    @Test
     @DisplayName("Test PUT request to /api/users/{id} (updating some fields)")
     public void testPutToApiUsersIdUpdatingSomeFields() throws Exception {
-        String password = faker.text().text(Text.TextSymbolsBuilder.builder()
-                .len(10)
-                .with(EN_LOWERCASE, 1)
-                .with(EN_UPPERCASE, 1)
-                .with(DIGITS, 1)
-                .build()
-        );
+        String password = modelGenerator.generatePassword();
 
         var dto = new UserUpdateDTO();
         dto.setEmail(JsonNullable.of(faker.internet().emailAddress()));
@@ -316,5 +330,24 @@ public class UsersControllerTest {
                 .andExpect(status().isNoContent());
 
         assertThat(userRepository.existsById(testUserId)).isEqualTo(false);
+    }
+
+    @Test
+    @DisplayName("Test DELETE request to /api/users/{id} (from other user)")
+    public void testDeleteToApiUsersIdFromOtherUser() throws Exception {
+        User testUser2 = Instancio.of(modelGenerator.getUserModel())
+                .create();
+
+        userRepository.save(testUser2);
+
+        JwtRequestPostProcessor token2 = jwt().jwt(builder -> builder.subject(testUser2.getEmail()));
+
+        long testUserId = testUser.getId();
+
+        mockMvc.perform(delete("/api/users/" + testUser.getId())
+                        .with(token2))
+                .andExpect(status().isForbidden());
+
+        assertThat(userRepository.existsById(testUserId)).isEqualTo(true);
     }
 }
