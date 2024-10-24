@@ -10,7 +10,7 @@ import java.util.List;
 
 @Component
 @Getter
-public class LabelUtil {
+public class LabelUtils {
     private final List<String> defaultLabels = List.of("feature", "bug");
 
     @Autowired

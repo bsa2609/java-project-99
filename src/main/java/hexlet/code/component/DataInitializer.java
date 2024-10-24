@@ -1,7 +1,7 @@
 package hexlet.code.component;
 
-import hexlet.code.util.LabelUtil;
-import hexlet.code.util.TaskStatusUtil;
+import hexlet.code.util.LabelUtils;
+import hexlet.code.util.TaskStatusUtils;
 import hexlet.code.util.UserUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
@@ -11,20 +11,20 @@ import org.springframework.stereotype.Component;
 @Component
 public class DataInitializer implements ApplicationRunner {
     private final UserUtils userUtils;
-    private final TaskStatusUtil taskStatusUtil;
-    private final LabelUtil labelUtil;
+    private final TaskStatusUtils taskStatusUtils;
+    private final LabelUtils labelUtils;
 
     @Autowired
-    public DataInitializer(UserUtils userUtils, TaskStatusUtil taskStatusUtil, LabelUtil labelUtil) {
+    public DataInitializer(UserUtils userUtils, TaskStatusUtils taskStatusUtils, LabelUtils labelUtils) {
         this.userUtils = userUtils;
-        this.taskStatusUtil = taskStatusUtil;
-        this.labelUtil = labelUtil;
+        this.taskStatusUtils = taskStatusUtils;
+        this.labelUtils = labelUtils;
     }
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
         userUtils.createAdminUser();
-        taskStatusUtil.createDefaultTaskStatuses();
-        labelUtil.createDefaultLabels();
+        taskStatusUtils.createDefaultTaskStatuses();
+        labelUtils.createDefaultLabels();
     }
 }

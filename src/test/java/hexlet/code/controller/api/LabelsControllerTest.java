@@ -6,7 +6,7 @@ import hexlet.code.dto.label.LabelDTO;
 import hexlet.code.dto.label.LabelUpdateDTO;
 import hexlet.code.model.Label;
 import hexlet.code.repository.LabelRepository;
-import hexlet.code.util.LabelUtil;
+import hexlet.code.util.LabelUtils;
 import hexlet.code.util.ModelGenerator;
 import hexlet.code.util.UserUtils;
 import org.junit.jupiter.api.AfterEach;
@@ -53,7 +53,7 @@ public class LabelsControllerTest {
     private UserUtils userUtils;
 
     @Autowired
-    private LabelUtil labelUtil;
+    private LabelUtils labelUtils;
 
     @Autowired
     private LabelRepository labelRepository;
@@ -70,7 +70,7 @@ public class LabelsControllerTest {
     @BeforeEach
     public void setUp() {
         userUtils.createAdminUser();
-        labelUtil.createDefaultLabels();
+        labelUtils.createDefaultLabels();
 
         mockMvc = MockMvcBuilders.webAppContextSetup(wac)
                 .defaultResponseCharacterEncoding(StandardCharsets.UTF_8)

@@ -15,9 +15,9 @@ import hexlet.code.repository.TaskStatusRepository;
 import hexlet.code.service.LabelService;
 import hexlet.code.service.TaskStatusService;
 import hexlet.code.service.UserService;
-import hexlet.code.util.LabelUtil;
+import hexlet.code.util.LabelUtils;
 import hexlet.code.util.ModelGenerator;
-import hexlet.code.util.TaskStatusUtil;
+import hexlet.code.util.TaskStatusUtils;
 import hexlet.code.util.UserUtils;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.AfterEach;
@@ -68,7 +68,7 @@ public class TasksControllerTest {
     private TaskStatusService taskStatusService;
 
     @Autowired
-    private TaskStatusUtil taskStatusUtil;
+    private TaskStatusUtils taskStatusUtils;
 
     @Autowired
     private TaskStatusRepository taskStatusRepository;
@@ -89,7 +89,7 @@ public class TasksControllerTest {
     private ModelGenerator modelGenerator;
 
     @Autowired
-    private LabelUtil labelUtil;
+    private LabelUtils labelUtils;
 
     @Autowired
     private LabelRepository labelRepository;
@@ -103,8 +103,8 @@ public class TasksControllerTest {
     @BeforeEach
     public void setUp() {
         userUtils.createAdminUser();
-        taskStatusUtil.createDefaultTaskStatuses();
-        labelUtil.createDefaultLabels();
+        taskStatusUtils.createDefaultTaskStatuses();
+        labelUtils.createDefaultLabels();
 
         mockMvc = MockMvcBuilders.webAppContextSetup(wac)
                 .defaultResponseCharacterEncoding(StandardCharsets.UTF_8)

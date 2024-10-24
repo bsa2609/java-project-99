@@ -35,10 +35,10 @@ public class ModelGenerator {
     private UserUtils userUtils;
 
     @Autowired
-    private TaskStatusUtil taskStatusUtil;
+    private TaskStatusUtils taskStatusUtils;
 
     @Autowired
-    private LabelUtil labelUtil;
+    private LabelUtils labelUtils;
 
     @Autowired
     private LabelService labelService;
@@ -70,7 +70,7 @@ public class ModelGenerator {
     }
 
     private TaskStatus getRandomDefaultTaskStatus() {
-        List<String[]> defaultTaskStatuses = taskStatusUtil.getDefaultTaskStatuses();
+        List<String[]> defaultTaskStatuses = taskStatusUtils.getDefaultTaskStatuses();
 
         int randomIndex = getRandomInt(0, defaultTaskStatuses.size() - 1);
         String randomSlug = defaultTaskStatuses.get(randomIndex)[0];
@@ -79,7 +79,7 @@ public class ModelGenerator {
     }
 
     private List<Label> getRandomDefaultLabel() {
-        List<String> defaultLabels = labelUtil.getDefaultLabels();
+        List<String> defaultLabels = labelUtils.getDefaultLabels();
 
         int randomIndex = getRandomInt(0, defaultLabels.size() - 1);
         String randomName = defaultLabels.get(randomIndex);

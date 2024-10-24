@@ -12,3 +12,7 @@ springdoc:
     path: /swagger-ui.html
   api-docs:
     path: /api-docs
+sentry:
+  dsn: https://b781b35f4fe97eb2124cb143f9c24753@o4508174760607744.ingest.us.sentry.io/4508174764015616
+  tracesSampleRate: 1.0
+  exception-resolver-order: -2147483647

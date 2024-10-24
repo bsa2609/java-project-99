@@ -10,7 +10,7 @@ import java.util.List;
 
 @Component
 @Getter
-public class TaskStatusUtil {
+public class TaskStatusUtils {
     private final List<String[]> defaultTaskStatuses = List.of(
             new String[]{"draft", "Draft"},
             new String[]{"to_review", "To review"},
