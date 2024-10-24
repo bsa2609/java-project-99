@@ -11,15 +11,15 @@ plugins {
 	id("io.sentry.jvm.gradle") version "4.12.0"
 }
 
-sentry {
-	// Generates a JVM (Java, Kotlin, etc.) source bundle and uploads your source code to Sentry.
-	// This enables source context, allowing you to see your source
-	// code as part of your stack traces in Sentry.
-	includeSourceContext = true
+if (System.getenv("SPRING_PROFILES_ACTIVE") != null
+	&& System.getenv("SPRING_PROFILES_ACTIVE").equals("production")) {
+	sentry {
+		includeSourceContext = true
 
-	org = "home-1u9"
-	projectName = "java-spring-boot"
-	authToken = System.getenv("SENTRY_AUTH_TOKEN")
+		org = "home-1u9"
+		projectName = "java-spring-boot"
+		authToken = System.getenv("SENTRY_AUTH_TOKEN")
+	}
 }
 
 group = "hexlet.code"
