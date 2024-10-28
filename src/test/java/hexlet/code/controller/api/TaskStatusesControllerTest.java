@@ -3,10 +3,11 @@ package hexlet.code.controller.api;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hexlet.code.dto.taskStatus.TaskStatusCreateDTO;
 import hexlet.code.dto.taskStatus.TaskStatusUpdateDTO;
-import hexlet.code.mapper.TaskStatusMapper;
 import hexlet.code.model.TaskStatus;
 import hexlet.code.repository.TaskStatusRepository;
 import jakarta.servlet.ServletException;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import net.datafaker.Faker;
 import org.instancio.Instancio;
 import org.instancio.Select;
@@ -41,24 +42,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class TaskStatusesControllerTest {
-    @Autowired
-    private WebApplicationContext wac;
+    private final WebApplicationContext wac;
+    private final TaskStatusRepository taskStatusRepository;
+    private final ObjectMapper objectMapper;
+    private final Faker faker;
 
-    @Autowired
+    @NonNull
     private MockMvc mockMvc;
-
-    @Autowired
-    private TaskStatusRepository taskStatusRepository;
-
-    @Autowired
-    private TaskStatusMapper taskStatusMapper;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private Faker faker;
 
     private TaskStatus testTaskStatus;
     private JwtRequestPostProcessor token;

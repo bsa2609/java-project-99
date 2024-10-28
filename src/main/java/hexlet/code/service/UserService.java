@@ -4,27 +4,20 @@ import hexlet.code.dto.user.UserCreateDTO;
 import hexlet.code.dto.user.UserDTO;
 import hexlet.code.dto.user.UserUpdateDTO;
 
-// import hexlet.code.exception.EntityNotUniqueException;
-
 import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.mapper.UserMapper;
 import hexlet.code.model.User;
 import hexlet.code.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
     private final UserMapper userMapper;
     private final UserRepository userRepository;
-
-    @Autowired
-    public UserService(UserMapper userMapper, UserRepository userRepository) {
-        this.userMapper = userMapper;
-        this.userRepository = userRepository;
-    }
 
     public List<UserDTO> getAll() {
         return userRepository.findAll().stream()
@@ -39,16 +32,6 @@ public class UserService {
     }
 
     public UserDTO create(UserCreateDTO data) {
-        /*
-        String email = data.getEmail();
-        if (isEmailExists(email)) {
-            throw new EntityNotUniqueException(
-                    String.format("User with email %s already exists", email)
-            );
-        }
-
-         */
-
         User user = userMapper.map(data);
         userRepository.save(user);
 

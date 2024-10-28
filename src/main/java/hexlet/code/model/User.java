@@ -33,25 +33,32 @@ import java.util.List;
 public class User implements UserDetails, BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private long id;
 
+    @Column(name = "first_mame")
     private String firstName;
+
+    @Column(name = "last_name")
     private String lastName;
 
     @NotBlank(message = "Email may not be blank")
     @Email(message = "Email address is incorrect")
-    @Column(unique = true)
+    @Column(name = "email", unique = true)
     private String email;
 
     @NotBlank(message = "Password may not be blank")
     @Size(min = 3, message = "Password must be at least 3 characters long")
     @JsonIgnore
+    @Column(name = "password")
     private String password;
 
     @CreatedDate
+    @Column(name = "created_at")
     private LocalDate createdAt;
 
     @LastModifiedDate
+    @Column(name = "updated_at")
     private LocalDate updatedAt;
 
     @Override

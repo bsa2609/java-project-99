@@ -10,6 +10,8 @@ import hexlet.code.util.LabelUtils;
 import hexlet.code.util.ModelGenerator;
 import hexlet.code.util.UserUtils;
 import jakarta.servlet.ServletException;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -44,27 +46,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class LabelsControllerTest {
-    @Autowired
-    private WebApplicationContext wac;
+    private final WebApplicationContext wac;
+    private final UserUtils userUtils;
+    private final LabelUtils labelUtils;
+    private final LabelRepository labelRepository;
+    private final ModelGenerator modelGenerator;
+    private final ObjectMapper objectMapper;
 
-    @Autowired
+    @NonNull
     private MockMvc mockMvc;
-
-    @Autowired
-    private UserUtils userUtils;
-
-    @Autowired
-    private LabelUtils labelUtils;
-
-    @Autowired
-    private LabelRepository labelRepository;
-
-    @Autowired
-    private ModelGenerator modelGenerator;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     private Label testLabel;
     private SecurityMockMvcRequestPostProcessors.JwtRequestPostProcessor token;

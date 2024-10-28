@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import hexlet.code.dto.task.TaskCreateDTO;
 import hexlet.code.dto.task.TaskDTO;
 import hexlet.code.dto.task.TaskUpdateDTO;
-import hexlet.code.mapper.TaskMapper;
 import hexlet.code.model.Label;
 import hexlet.code.model.Task;
 import hexlet.code.model.TaskStatus;
@@ -14,12 +13,13 @@ import hexlet.code.repository.TaskRepository;
 import hexlet.code.repository.TaskStatusRepository;
 import hexlet.code.service.LabelService;
 import hexlet.code.service.TaskStatusService;
-import hexlet.code.service.UserService;
 import hexlet.code.util.LabelUtils;
 import hexlet.code.util.ModelGenerator;
 import hexlet.code.util.TaskStatusUtils;
 import hexlet.code.util.UserUtils;
 import jakarta.servlet.ServletException;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.instancio.Instancio;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,48 +57,22 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class TasksControllerTest {
-    @Autowired
-    private WebApplicationContext wac;
+    private final WebApplicationContext wac;
+    private final TaskRepository taskRepository;
+    private final TaskStatusService taskStatusService;
+    private final TaskStatusUtils taskStatusUtils;
+    private final TaskStatusRepository taskStatusRepository;
+    private final UserUtils userUtils;
+    private final ObjectMapper objectMapper;
+    private final ModelGenerator modelGenerator;
+    private final LabelUtils labelUtils;
+    private final LabelRepository labelRepository;
+    private final LabelService labelService;
 
-    @Autowired
+    @NonNull
     private MockMvc mockMvc;
-
-    @Autowired
-    private TaskRepository taskRepository;
-
-    @Autowired
-    private TaskStatusService taskStatusService;
-
-    @Autowired
-    private TaskStatusUtils taskStatusUtils;
-
-    @Autowired
-    private TaskStatusRepository taskStatusRepository;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private UserUtils userUtils;
-
-    @Autowired
-    private TaskMapper taskMapper;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
-    @Autowired
-    private ModelGenerator modelGenerator;
-
-    @Autowired
-    private LabelUtils labelUtils;
-
-    @Autowired
-    private LabelRepository labelRepository;
-
-    @Autowired
-    private LabelService labelService;
 
     private Task testTask;
     private JwtRequestPostProcessor token;

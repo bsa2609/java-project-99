@@ -4,27 +4,20 @@ import hexlet.code.dto.taskStatus.TaskStatusCreateDTO;
 import hexlet.code.dto.taskStatus.TaskStatusDTO;
 import hexlet.code.dto.taskStatus.TaskStatusUpdateDTO;
 
-//import hexlet.code.exception.EntityNotUniqueException;
-
 import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.mapper.TaskStatusMapper;
 import hexlet.code.model.TaskStatus;
 import hexlet.code.repository.TaskStatusRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class TaskStatusService {
     private final TaskStatusMapper taskStatusMapper;
     private final TaskStatusRepository taskStatusRepository;
-
-    @Autowired
-    public TaskStatusService(TaskStatusMapper taskStatusMapper, TaskStatusRepository taskStatusRepository) {
-        this.taskStatusMapper = taskStatusMapper;
-        this.taskStatusRepository = taskStatusRepository;
-    }
 
     public List<TaskStatusDTO> getAll() {
         return taskStatusRepository.findAll().stream()
@@ -39,23 +32,6 @@ public class TaskStatusService {
     }
 
     public TaskStatusDTO create(TaskStatusCreateDTO data) {
-        /*
-        String slug = data.getSlug();
-        if (isSlugExists(slug)) {
-            throw new EntityNotUniqueException(
-                    String.format("Task status with slug %s already exists", slug)
-            );
-        }
-
-        String name = data.getName();
-        if (isNameExists(name)) {
-            throw new EntityNotUniqueException(
-                    String.format("Task status with name %s already exists", name)
-            );
-        }
-
-         */
-
         TaskStatus taskStatus = taskStatusMapper.map(data);
         taskStatusRepository.save(taskStatus);
 
@@ -64,27 +40,6 @@ public class TaskStatusService {
 
     public TaskStatusDTO update(long id, TaskStatusUpdateDTO data) {
         TaskStatus taskStatus = findById(id);
-
-        /*
-        if (data.getSlug() != null && data.getSlug().isPresent()) {
-            String slug = data.getSlug().get();
-            if (isSlugExists(slug)) {
-                throw new EntityNotUniqueException(
-                        String.format("Task status with slug %s already exists", slug)
-                );
-            }
-        }
-
-        if (data.getName() != null && data.getName().isPresent()) {
-            String name = data.getName().get();
-            if (isNameExists(name)) {
-                throw new EntityNotUniqueException(
-                        String.format("Task status with name %s already exists", name)
-                );
-            }
-        }
-
-         */
 
         taskStatusMapper.update(data, taskStatus);
         taskStatusRepository.save(taskStatus);

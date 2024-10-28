@@ -32,21 +32,26 @@ import java.util.List;
 public class Task implements BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private long id;
 
     @NotBlank(message = "Name may not be blank")
+    @Column(name = "name")
     private String name;
 
+    @Column(name = "index")
     private int index;
 
-    @Column(columnDefinition = "TEXT")
+    @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
     @ManyToOne
     @NotNull(message = "Task status may not be null")
+    @JoinColumn(name = "task_status_id")
     private TaskStatus taskStatus;
 
     @ManyToOne
+    @JoinColumn(name = "assignee_id")
     private User assignee;
 
     @ManyToMany
@@ -56,5 +61,6 @@ public class Task implements BaseEntity {
     private List<Label> labels = new ArrayList<>();
 
     @CreatedDate
+    @Column(name = "created_at")
     private LocalDate createdAt;
 }

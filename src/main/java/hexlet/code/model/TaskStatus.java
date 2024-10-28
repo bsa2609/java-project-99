@@ -25,16 +25,18 @@ import java.time.LocalDate;
 public class TaskStatus implements BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private long id;
 
     @NotBlank(message = "Name may not be blank")
-    @Column(unique = true)
+    @Column(name = "name", unique = true)
     private String name;
 
     @NotBlank(message = "Slug may not be blank")
-    @Column(unique = true)
+    @Column(name = "slug", unique = true)
     private String slug;
 
     @CreatedDate
+    @Column(name = "created_at")
     private LocalDate createdAt;
 }

@@ -4,27 +4,20 @@ import hexlet.code.dto.task.TaskCreateDTO;
 import hexlet.code.dto.task.TaskDTO;
 import hexlet.code.dto.task.TaskUpdateDTO;
 
-//import hexlet.code.exception.ReferenceNotFoundException;
-
 import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.mapper.TaskMapper;
 import hexlet.code.model.Task;
 import hexlet.code.repository.TaskRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class TaskService {
     private final TaskMapper taskMapper;
     private final TaskRepository taskRepository;
-
-    @Autowired
-    public TaskService(TaskMapper taskMapper, TaskRepository taskRepository) {
-        this.taskMapper = taskMapper;
-        this.taskRepository = taskRepository;
-    }
 
     public List<TaskDTO> getAll(String titleCont, long assigneeId, String status, long labelId) {
         return taskRepository.findAllUsingFilters(titleCont, assigneeId, status, labelId).stream()
@@ -40,25 +33,6 @@ public class TaskService {
 
     public TaskDTO create(TaskCreateDTO data) {
         Task task = taskMapper.map(data);
-
-        /*
-        if (task.getTaskStatus() == null) {
-            throw new ReferenceNotFoundException(
-                    String.format("Task status with slug %s not found. Task cannot be created.", data.getStatus())
-            );
-        }
-
-        if (data.getAssigneeId() != null
-                && data.getAssigneeId().isPresent()
-                && data.getAssigneeId().get() != 0
-                && task.getAssignee() == null) {
-            throw new ReferenceNotFoundException(
-                    String.format("User with id %s not found. Task cannot be created.", data.getAssigneeId().get())
-            );
-        }
-
-         */
-
         taskRepository.save(task);
 
         return taskMapper.map(task);
@@ -68,27 +42,6 @@ public class TaskService {
         Task task = findById(id);
 
         taskMapper.update(data, task);
-
-        /*
-        if (data.getStatus() != null
-                && data.getStatus().isPresent()
-                && task.getTaskStatus() == null) {
-            throw new ReferenceNotFoundException(
-                    String.format("Task status with slug %s not found. Task cannot be updated.", data.getStatus().get())
-            );
-        }
-
-        if (data.getAssigneeId() != null
-                && data.getAssigneeId().isPresent()
-                && data.getAssigneeId().get() != 0
-                && task.getAssignee() == null) {
-            throw new ReferenceNotFoundException(
-                    String.format("User with id %s not found. Task cannot be updated.", data.getAssigneeId().get())
-            );
-        }
-
-         */
-
         taskRepository.save(task);
 
         return taskMapper.map(task);

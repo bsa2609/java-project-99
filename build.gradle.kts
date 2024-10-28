@@ -5,8 +5,8 @@ plugins {
 	application
 	checkstyle
 	jacoco
-	id("io.freefair.lombok") version "8.6"
-	id("org.springframework.boot") version "3.3.4"
+	id("io.freefair.lombok") version "8.10.2"
+	id("org.springframework.boot") version "3.3.5"
 	id("io.spring.dependency-management") version "1.1.6"
 	id("io.sentry.jvm.gradle") version "4.12.0"
 }

@@ -4,27 +4,20 @@ import hexlet.code.dto.label.LabelCreateDTO;
 import hexlet.code.dto.label.LabelDTO;
 import hexlet.code.dto.label.LabelUpdateDTO;
 
-// import hexlet.code.exception.EntityNotUniqueException;
-
 import hexlet.code.exception.ResourceNotFoundException;
 import hexlet.code.mapper.LabelMapper;
 import hexlet.code.model.Label;
 import hexlet.code.repository.LabelRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class LabelService {
     private final LabelRepository labelRepository;
     private final LabelMapper labelMapper;
-
-    @Autowired
-    public LabelService(LabelRepository labelRepository, LabelMapper labelMapper) {
-        this.labelRepository = labelRepository;
-        this.labelMapper = labelMapper;
-    }
 
     public List<LabelDTO> getAll() {
         return labelRepository.findAll().stream()
@@ -39,16 +32,6 @@ public class LabelService {
     }
 
     public LabelDTO create(LabelCreateDTO data) {
-        /*
-        String name = data.getName();
-        if (isNameExists(name)) {
-            throw new EntityNotUniqueException(
-                    String.format("Label with name %s already exists", name)
-            );
-        }
-
-         */
-
         Label label = labelMapper.map(data);
         labelRepository.save(label);
 
@@ -56,16 +39,6 @@ public class LabelService {
     }
 
     public LabelDTO update(long id, LabelUpdateDTO data) {
-        /*
-        String name = data.getName();
-        if (isNameExists(name)) {
-            throw new EntityNotUniqueException(
-                    String.format("Label with name %s already exists", name)
-            );
-        }
-
-         */
-
         Label label = findById(id);
 
         labelMapper.update(data, label);

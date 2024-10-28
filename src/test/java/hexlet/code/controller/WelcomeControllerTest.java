@@ -1,6 +1,8 @@
 package hexlet.code.controller;
 
 import hexlet.code.repository.UserRepository;
+import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -16,12 +18,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @AutoConfigureMockMvc
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class WelcomeControllerTest {
-    @Autowired
-    private MockMvc mockMvc;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+    @NonNull
+    private MockMvc mockMvc;
 
     @AfterEach
     public void clearTables() {

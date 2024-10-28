@@ -3,18 +3,18 @@ package hexlet.code.util;
 import hexlet.code.dto.label.LabelCreateDTO;
 import hexlet.code.service.LabelService;
 import lombok.Getter;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
 @Getter
+@RequiredArgsConstructor
 public class LabelUtils {
-    private final List<String> defaultLabels = List.of("feature", "bug");
+    private final LabelService labelService;
 
-    @Autowired
-    private LabelService labelService;
+    private final List<String> defaultLabels = List.of("feature", "bug");
 
     public void createDefaultLabels() {
         for (String name : defaultLabels) {

@@ -31,12 +31,13 @@ import java.util.List;
 public class Label {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private long id;
 
     @NotBlank(message = "Name may not be blank")
     @Size(min = 3, message = "Name must be at least 3 characters long")
     @Size(max = 1000, message = "Name must be no more than 1000 characters long")
-    @Column(unique = true)
+    @Column(name = "name", unique = true)
     private String name;
 
     @ManyToMany(mappedBy = "labels", cascade = CascadeType.MERGE)
@@ -44,5 +45,6 @@ public class Label {
     private List<Task> tasks = new ArrayList<>();
 
     @CreatedDate
+    @Column(name = "created_at")
     private LocalDate createdAt;
 }

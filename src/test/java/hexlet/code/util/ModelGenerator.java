@@ -8,12 +8,12 @@ import hexlet.code.service.LabelService;
 import hexlet.code.service.TaskStatusService;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import net.datafaker.Faker;
 import net.datafaker.providers.base.Text;
 import org.instancio.Instancio;
 import org.instancio.Model;
 import org.instancio.Select;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -26,7 +26,16 @@ import static net.datafaker.providers.base.Text.EN_UPPERCASE;
 
 @Getter
 @Component
+@RequiredArgsConstructor
 public class ModelGenerator {
+    private final Faker faker;
+    private final TaskStatusService taskStatusService;
+    private final UserUtils userUtils;
+    private final TaskStatusUtils taskStatusUtils;
+    private final LabelUtils labelUtils;
+    private final LabelService labelService;
+    private final PasswordEncoder passwordEncoder;
+
     private final int minTaskStatusIndex = 1;
     private final int maxTaskStatusIndex = 1000;
 
@@ -36,27 +45,6 @@ public class ModelGenerator {
     private Model<Task> taskModel;
     private Model<Label> labelModel;
     private Model<User> userModel;
-
-    @Autowired
-    private Faker faker;
-
-    @Autowired
-    private TaskStatusService taskStatusService;
-
-    @Autowired
-    private UserUtils userUtils;
-
-    @Autowired
-    private TaskStatusUtils taskStatusUtils;
-
-    @Autowired
-    private LabelUtils labelUtils;
-
-    @Autowired
-    private LabelService labelService;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
 
     @PostConstruct
     private void init() {
